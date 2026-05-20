@@ -14,9 +14,26 @@ permissions:
 
 jobs:
   build-and-push:
-    name: "Build & Push"
+    name: "Build & Push (${{ matrix.image.name }})"
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
+
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - name: web
+            suffix: ""
+            dockerfile: ./Dockerfile
+            title: "Cal.diy Web"
+            description: "Self-hosted Cal.com web app"
+            cache_scope: web
+          - name: api
+            suffix: "-api"
+            dockerfile: ./apps/api/v2/Dockerfile
+            title: "Cal.diy API v2"
+            description: "Self-hosted Cal.com API v2 (NestJS)"
+            cache_scope: api
 
     steps:
       - name: Checkout
@@ -34,7 +51,7 @@ jobs:
 
       - name: Lowercase image name
         id: image
-        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}${{ matrix.image.suffix }}" >> "$GITHUB_OUTPUT"
 
       - name: Docker metadata
         id: meta
@@ -47,25 +64,27 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=sha-,format=short
           labels: |
-            org.opencontainers.image.title=Cal.diy
-            org.opencontainers.image.description=Self-hosted Cal.com scheduling
+            org.opencontainers.image.title=${{ matrix.image.title }}
+            org.opencontainers.image.description=${{ matrix.image.description }}
 
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile
+          file: ${{ matrix.image.dockerfile }}
           push: true
           platforms: linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          # NEXT_PUBLIC_WEBAPP_URL is intentionally a placeholder here.
-          # start.sh replaces it at runtime with the real NEXT_PUBLIC_WEBAPP_URL env var.
-          # All secrets (DATABASE_URL, NEXTAUTH_SECRET, etc.) are injected at runtime only.
+          cache-from: type=gha,scope=${{ matrix.image.cache_scope }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image.cache_scope }}
+          # Build args are only placeholders / build-time hints.
+          # All real secrets (DATABASE_URL, NEXTAUTH_SECRET, REDIS_URL, etc.)
+          # are injected at runtime via the k8s Deployment env.
           build-args: |
             NEXT_PUBLIC_WEBAPP_URL=http://NEXT_PUBLIC_WEBAPP_URL_PLACEHOLDER
             NEXT_PUBLIC_LICENSE_CONSENT=agree
             CALCOM_TELEMETRY_DISABLED=1
             MAX_OLD_SPACE_SIZE=6144
+            DATABASE_URL=postgresql://placeholder:placeholder@localhost:5432/placeholder
+            DATABASE_DIRECT_URL=postgresql://placeholder:placeholder@localhost:5432/placeholder
