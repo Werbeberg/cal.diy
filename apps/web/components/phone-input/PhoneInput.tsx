@@ -31,7 +31,7 @@ function BasePhoneInput({
   className = "",
   onChange,
   value,
-  defaultCountry = "us",
+  defaultCountry = "at",
   ...rest
 }: PhoneInputProps) {
   const isPlatform = useIsPlatform();
