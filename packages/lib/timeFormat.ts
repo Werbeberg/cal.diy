@@ -35,20 +35,11 @@ export const getTimeFormatStringFromUserTimeFormat = (timeFormat: number | null 
  */
 export const isBrowserLocale24h = () => {
   const localStorageTimeFormat = getIs24hClockFromLocalStorage();
-  // If time format is already stored in the browser then retrieve and return early
-  if (localStorageTimeFormat === true) {
-    return true;
-  } else if (localStorageTimeFormat === false) {
-    return false;
-  }
-  // Intl.DateTimeFormat with value=undefined uses local browser settings.
-  if (!!new Intl.DateTimeFormat(undefined, { hour: "numeric" }).format(0).match(/M/i)) {
-    setIs24hClockInLocalStorage(false);
-    return false;
-  } else {
-    setIs24hClockInLocalStorage(true);
-    return true;
-  }
+  // Only respect explicit user preference stored in localStorage, not auto-detected values
+  if (localStorageTimeFormat !== null) return localStorageTimeFormat;
+
+  // Default to 24h; browser locale is only used as a signal, not stored automatically
+  return true;
 };
 
 /**
