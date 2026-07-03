@@ -101,6 +101,7 @@ describe("getHandler - identity provider email lookup", () => {
     defaultBookerLayouts: null,
     allowDynamicBooking: true,
     allowSEOIndexing: true,
+    showOnTeamOverview: false,
     receiveMonthlyDigestEmail: true,
     requiresBookerEmailVerification: false,
     role: "USER",

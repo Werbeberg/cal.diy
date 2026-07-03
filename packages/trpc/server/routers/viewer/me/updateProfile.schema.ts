@@ -24,6 +24,7 @@ export type TUpdateProfileInputSchemaInput = {
   hideBranding?: boolean;
   allowDynamicBooking?: boolean;
   allowSEOIndexing?: boolean;
+  showOnTeamOverview?: boolean;
   receiveMonthlyDigestEmail?: boolean;
   requiresBookerEmailVerification?: boolean;
   brandColor?: string;
@@ -58,6 +59,7 @@ export type TUpdateProfileInputSchema = {
   hideBranding?: boolean;
   allowDynamicBooking?: boolean;
   allowSEOIndexing?: boolean;
+  showOnTeamOverview?: boolean;
   receiveMonthlyDigestEmail?: boolean;
   requiresBookerEmailVerification?: boolean;
   brandColor?: string;
@@ -96,6 +98,7 @@ export const ZUpdateProfileInputSchema: z.ZodType<
   hideBranding: z.boolean().optional(),
   allowDynamicBooking: z.boolean().optional(),
   allowSEOIndexing: z.boolean().optional(),
+  showOnTeamOverview: z.boolean().optional(),
   receiveMonthlyDigestEmail: z.boolean().optional(),
   requiresBookerEmailVerification: z.boolean().optional(),
   brandColor: z.string().optional(),
