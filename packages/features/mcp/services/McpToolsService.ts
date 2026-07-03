@@ -295,7 +295,7 @@ export class McpToolsService {
     const normalized = isDateOnly && opts?.endOfDay ? `${value}T23:59:59.999Z` : value;
 
     const parsed = new Date(normalized);
-    if (isNaN(parsed.getTime())) {
+    if (Number.isNaN(parsed.getTime())) {
       throw ErrorWithCode.Factory.BadRequest(`'${fieldName}' is not a valid ISO 8601 date: ${value}`);
     }
     return parsed;
