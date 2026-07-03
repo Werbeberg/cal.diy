@@ -7,6 +7,7 @@ type Deps = {
 type VerifyKeyResult =
   | {
       valid: true;
+      apiKeyId: string;
       userId: number;
       user: {
         uuid: string;
@@ -38,8 +39,13 @@ export class ApiKeyService {
       return { valid: false, error: "No user found for this API key." };
     }
 
+    if (apiKey.user.locked) {
+      return { valid: false, error: "The user account for this API key is locked." };
+    }
+
     return {
       valid: true,
+      apiKeyId: apiKey.id,
       userId: apiKey.userId,
       user: apiKey.user,
     };
