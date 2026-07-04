@@ -7,6 +7,11 @@ import { z } from "zod";
 
 const log = logger.getSubLogger({ prefix: ["mcp"] });
 
+const listUsersInput = z.object({
+  search: z.string().optional(),
+  limit: z.number().int().positive().max(250).optional(),
+});
+
 const listEventTypesInput = z.object({
   username: z.string(),
 });
@@ -50,6 +55,22 @@ const cancelBookingInput = z.object({
  * the zod version used in this repo (TS2589), so validation and schema are kept separate.
  */
 const TOOL_DEFINITIONS = [
+  {
+    name: "list_users",
+    description:
+      "List the bookable people of this instance (users with at least one public event type). Use this to find out who a meeting can be booked with, e.g. when the requester has not named a specific person yet.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        search: {
+          type: "string",
+          description: "Optional filter, matches against username and display name (case-insensitive)",
+        },
+        limit: { type: "number", description: "Maximum number of users to return (default 50, max 250)" },
+      },
+      required: [],
+    },
+  },
   {
     name: "list_event_types",
     description:
@@ -196,6 +217,8 @@ export function buildMcpServer({
 
     try {
       switch (name) {
+        case "list_users":
+          return toToolResult(await toolsService.listUsers(listUsersInput.parse(args)));
         case "list_event_types":
           return toToolResult(await toolsService.listEventTypes(listEventTypesInput.parse(args)));
         case "get_available_slots":

@@ -41,6 +41,7 @@ API keys stay user-level — no schema change was needed for a "global" level:
 
 | Tool | Description | Scope |
 |------|-------------|-------|
+| `list_users` | Bookable people of the instance (users with a public event type) | any key |
 | `list_event_types` | Public (bookable) event types of a user | any key |
 | `get_available_slots` | Free slots of a user for an event type in a date range (max 62 days) | any key |
 | `create_booking` | Book a slot with a user; creates the booking with `creationSource = MCP` | any key |

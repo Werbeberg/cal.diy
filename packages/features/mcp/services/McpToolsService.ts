@@ -20,6 +20,8 @@ import type {
 const MAX_AVAILABILITY_RANGE_DAYS = 62;
 const DEFAULT_BOOKINGS_LIMIT = 50;
 const MAX_BOOKINGS_LIMIT = 250;
+const DEFAULT_USERS_LIMIT = 50;
+const MAX_USERS_LIMIT = 250;
 
 type GetAvailableSlotsInput = {
   usernameList: string[];
@@ -52,6 +54,23 @@ export interface IMcpToolsServiceDeps {
 
 export class McpToolsService {
   constructor(private readonly deps: IMcpToolsServiceDeps) {}
+
+  async listUsers({ search, limit }: { search?: string; limit?: number }): Promise<{
+    users: McpUserDto[];
+  }> {
+    const users = await this.deps.userRepository.findManyBookable({
+      search,
+      limit: Math.min(limit ?? DEFAULT_USERS_LIMIT, MAX_USERS_LIMIT),
+    });
+
+    return {
+      users: users.map((user) => ({
+        username: user.username,
+        name: user.name,
+        timeZone: user.timeZone,
+      })),
+    };
+  }
 
   async listEventTypes({ username }: { username: string }): Promise<{
     user: McpUserDto;

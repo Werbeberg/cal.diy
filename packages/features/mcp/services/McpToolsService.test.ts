@@ -29,6 +29,7 @@ const buildService = (overrides?: { user?: typeof host | null; eventTypes?: (typ
   const deps = {
     userRepository: {
       findByUsername: vi.fn().mockResolvedValue(overrides?.user === undefined ? host : overrides.user),
+      findManyBookable: vi.fn().mockResolvedValue([host]),
     },
     bookingRepository: {
       findManyByUserIdIncludeAttendees: vi.fn().mockResolvedValue([]),
@@ -67,6 +68,25 @@ const buildService = (overrides?: { user?: typeof host | null; eventTypes?: (typ
 };
 
 describe("McpToolsService", () => {
+  describe("listUsers", () => {
+    it("lists bookable users with a default limit", async () => {
+      const { service, deps } = buildService();
+
+      const result = await service.listUsers({});
+
+      expect(deps.userRepository.findManyBookable).toHaveBeenCalledWith({ search: undefined, limit: 50 });
+      expect(result.users).toEqual([{ username: "person-x", name: "Person X", timeZone: "Europe/Vienna" }]);
+    });
+
+    it("passes the search filter through and caps the limit at 250", async () => {
+      const { service, deps } = buildService();
+
+      await service.listUsers({ search: "markus", limit: 10000 });
+
+      expect(deps.userRepository.findManyBookable).toHaveBeenCalledWith({ search: "markus", limit: 250 });
+    });
+  });
+
   describe("listEventTypes", () => {
     it("throws when the user does not exist", async () => {
       const { service } = buildService({ user: null });
