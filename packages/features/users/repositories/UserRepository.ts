@@ -57,6 +57,7 @@ export type SessionUser = {
   role: string;
   allowDynamicBooking: boolean;
   allowSEOIndexing: boolean;
+  showOnTeamOverview: boolean;
   receiveMonthlyDigestEmail: boolean;
   requiresBookerEmailVerification: boolean;
   profiles: UserProfile[];
@@ -1203,6 +1204,7 @@ export class UserRepository {
         role: true,
         allowDynamicBooking: true,
         allowSEOIndexing: true,
+        showOnTeamOverview: true,
         receiveMonthlyDigestEmail: true,
         requiresBookerEmailVerification: true,
         profiles: true,
@@ -1214,6 +1216,23 @@ export class UserRepository {
     }
 
     return withSelectedCalendars(user);
+  }
+
+  async findManyOptedIntoTeamOverview() {
+    return this.prismaClient.user.findMany({
+      where: {
+        showOnTeamOverview: true,
+        completedOnboarding: true,
+        username: { not: null },
+      },
+      select: {
+        username: true,
+        name: true,
+        bio: true,
+        avatarUrl: true,
+      },
+      orderBy: { name: "asc" },
+    });
   }
 
   async getUserStats({ userId }: { userId: number }) {

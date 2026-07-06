@@ -140,6 +140,7 @@ const GeneralView = ({ user, travelSchedules }: GeneralViewProps) => {
       ? !!user.organizationSettings?.allowSEOIndexing
       : !!user.allowSEOIndexing
   );
+  const [isShowOnTeamOverviewChecked, setIsShowOnTeamOverviewChecked] = useState(!!user.showOnTeamOverview);
   const [isReceiveMonthlyDigestEmailChecked, setIsReceiveMonthlyDigestEmailChecked] = useState(
     !!user.receiveMonthlyDigestEmail
   );
@@ -346,6 +347,20 @@ const GeneralView = ({ user, travelSchedules }: GeneralViewProps) => {
           onCheckedChange={(checked) => {
             setIsAllowSEOIndexingChecked(checked);
             mutation.mutate({ allowSEOIndexing: checked });
+          }}
+          switchContainerClassName="mt-6"
+        />
+
+        <SettingsToggle
+          data-testid="show-on-team-overview-switch"
+          toggleSwitchAtTheEnd={true}
+          title={t("show_on_team_overview")}
+          description={t("show_on_team_overview_description")}
+          disabled={mutation.isPending}
+          checked={isShowOnTeamOverviewChecked}
+          onCheckedChange={(checked) => {
+            setIsShowOnTeamOverviewChecked(checked);
+            mutation.mutate({ showOnTeamOverview: checked });
           }}
           switchContainerClassName="mt-6"
         />
